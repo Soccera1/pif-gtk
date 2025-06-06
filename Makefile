@@ -59,7 +59,12 @@ install: all
 	@install -m 755 install-pif-notify.sh "$(DESTDIR)$(PREFIX)/bin/install-pif-notify.sh"
 	@mkdir -p "$(DESTDIR)/etc/systemd/system"
 	@install -m 644 pif-notify.service "$(DESTDIR)/etc/systemd/system/pif-notify.service"
+	@mkdir -p "$(DESTDIR)/usr/share/applications"
+	@install -m 644 $(SRC_DIR)/pif-gtk.desktop "$(DESTDIR)/usr/share/applications/pif-gtk.desktop"
+	@mkdir -p "$(DESTDIR)/usr/share/icons/hicolor/2880x1829/apps"
+	@install -m 644 logo.png "$(DESTDIR)/usr/share/icons/hicolor/2880x1829/apps/pif-gtk.png"
 	@echo "Installation complete."
+
 
 uninstall:
 	@echo "Uninstalling $(BIN), $(GTK_BIN) and service files..."

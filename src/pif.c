@@ -132,7 +132,8 @@ int main(void) {
   }
 
   char fileloc[267];
-  if (snprintf(fileloc, sizeof(fileloc), "%s/.pif", homedir) >= sizeof(fileloc)) {
+  size_t len = snprintf(fileloc, sizeof(fileloc), "%s/.pif", homedir);
+  if (len >= sizeof(fileloc)) {
     handle_error("Path too long");
   }
 

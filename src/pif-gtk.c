@@ -71,6 +71,8 @@ void save_songs(void) {
 }
 
 void add_song(GtkWidget *widget, gpointer data) {
+    (void)widget;  // Suppress unused parameter warning
+    (void)data;    // Suppress unused parameter warning
     const char *song = gtk_entry_get_text(GTK_ENTRY(song_entry));
     if (strlen(song) == 0) return;
 
@@ -84,6 +86,8 @@ void add_song(GtkWidget *widget, gpointer data) {
 }
 
 void remove_song(GtkWidget *widget, gpointer data) {
+    (void)widget;  // Suppress unused parameter warning
+    (void)data;    // Suppress unused parameter warning
     GtkTreeSelection *selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(song_list));
     GtkTreeModel *model;
     GtkTreeIter iter;
@@ -142,6 +146,7 @@ void setup_file(void) {
 }
 
 static void activate(GtkApplication *app, gpointer user_data) {
+    (void)user_data;  // Suppress unused parameter warning
     GtkWidget *window;
     GtkWidget *vbox;
     GtkWidget *hbox;
@@ -206,7 +211,7 @@ int main(int argc, char **argv) {
 
     setup_file();
 
-    app = gtk_application_new("org.pif.gtk", G_APPLICATION_FLAGS_NONE);
+    app = gtk_application_new("org.pif.gtk", G_APPLICATION_DEFAULT_FLAGS);
     g_signal_connect(app, "activate", G_CALLBACK(activate), NULL);
     status = g_application_run(G_APPLICATION(app), argc, argv);
     g_object_unref(app);

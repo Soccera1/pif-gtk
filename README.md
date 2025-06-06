@@ -22,7 +22,7 @@ make
 ```
 
 This will build both the CLI version (`pif`) and the GTK version (`pif-gtk`).
-**You MUST keep pif installed as pif-gtk depends on pif.**
+**You MUST keep pif as pif-gtk depends on pif.**
 
 ## Installation
 

@@ -1,0 +1,8 @@
+pif-gtk (0.0.1-1) unstable; urgency=medium
+
+  * Initial release
+  * GTK-based system information and notification tool
+  * Includes systemd service for notifications
+  * Desktop integration with .desktop file
+
+ -- Lily <lily@hsmtp.uk>  Fri, 06 Jun 2025 22:57:22 +1000

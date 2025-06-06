@@ -1,0 +1,8 @@
+22fd42ddb274fd57775f709e99bb7167  lib/systemd/system/pif-notify.service
+a6bac088e9adaf8407ab645021f385d2  usr/bin/install-pif-notify
+4980e56754412e8b3a69c31f9c2abaad  usr/bin/pif
+c1b55bd56064b3e9d55a9cd19cc8058c  usr/bin/pif-gtk
+5575e90f40fdf9e394507b9e9c5cd5e2  usr/share/applications/pif-gtk.desktop
+44aaff8e12f7c4494e79acedceb790b6  usr/share/doc-base/pif-gtk.pif-gtk
+7281a5658fdcc5451a75fb01203192af  usr/share/doc/pif-gtk/changelog.Debian.gz
+1c32fa75f6ce7ed8713d2ba833db9931  usr/share/doc/pif-gtk/copyright

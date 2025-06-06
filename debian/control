@@ -1,0 +1,26 @@
+Source: pif-gtk
+Section: utils
+Priority: optional
+Maintainer: Lily <lily@hsmtp.uk>
+Rules-Requires-Root: no
+Build-Depends:
+ debhelper-compat (= 13),
+ libgtk-3-dev,
+ libnotify-dev,
+Standards-Version: 4.7.2
+Homepage: https://github.com/soccera1/pif-gtk
+Vcs-Browser: https://github.com/soccera1/pif-gtk
+Vcs-Git: https://github.com/soccera1/pif-gtk.git
+
+Package: pif-gtk
+Architecture: any
+Depends:
+ ${shlibs:Depends},
+ ${misc:Depends},
+ libgtk-3-0,
+ libnotify4,
+ systemd
+Description: GTK-based piano practice song manager
+ pif-gtk is a graphical tool for managing piano practice songs and their practice frequencies.
+ It allows users to add, remove, and modify songs along with their practice intervals.
+ The application integrates with the system's notification system to remind users of practice schedules.

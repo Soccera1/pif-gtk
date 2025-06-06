@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=pif-gtk
+Comment=Simple song management tool
+Exec=pif-gtk
+Terminal=false
+Type=Application
+Categories=AudioVideo;Audio;
+Icon=pif-gtk

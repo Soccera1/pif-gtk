@@ -56,17 +56,20 @@ install: all
 	@mkdir -p "$(DESTDIR)$(PREFIX)/bin"
 	@install -m 755 $(BIN) "$(DESTDIR)$(PREFIX)/bin/$(BIN)"
 	@install -m 755 $(GTK_BIN) "$(DESTDIR)$(PREFIX)/bin/$(GTK_BIN)"
-	@install -m 755 install-pif-notify.sh "$(DESTDIR)$(PREFIX)/bin/install-pif-notify.sh"
-	@mkdir -p "$(DESTDIR)/etc/systemd/system"
-	@install -m 644 pif-notify.service "$(DESTDIR)/etc/systemd/system/pif-notify.service"
+	@install -m 755 $(SRC_DIR)/install-pif-notify.sh "$(DESTDIR)$(PREFIX)/bin/install-pif-notify"
+	@mkdir -p "$(DESTDIR)/lib/systemd/system"
+	@install -m 644 $(SRC_DIR)/pif-notify.service "$(DESTDIR)/lib/systemd/system/pif-notify.service"
+	@mkdir -p "$(DESTDIR)/usr/share/applications"
+	@install -m 644 $(SRC_DIR)/pif-gtk.desktop "$(DESTDIR)/usr/share/applications/pif-gtk.desktop"
 	@echo "Installation complete."
 
 uninstall:
 	@echo "Uninstalling $(BIN), $(GTK_BIN) and service files..."
 	@rm -f "$(DESTDIR)$(PREFIX)/bin/$(BIN)"
 	@rm -f "$(DESTDIR)$(PREFIX)/bin/$(GTK_BIN)"
-	@rm -f "$(DESTDIR)$(PREFIX)/bin/install-pif-notify.sh"
-	@rm -f "$(DESTDIR)/etc/systemd/system/pif-notify.service"
+	@rm -f "$(DESTDIR)$(PREFIX)/bin/install-pif-notify"
+	@rm -f "$(DESTDIR)/lib/systemd/system/pif-notify.service"
+	@rm -f "$(DESTDIR)/usr/share/applications/pif-gtk.desktop"
 	@echo "Uninstallation complete."
 
 .PHONY: all clean install uninstall

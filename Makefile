@@ -57,10 +57,13 @@ install: all
 	@install -m 755 $(BIN) "$(DESTDIR)$(PREFIX)/bin/$(BIN)"
 	@install -m 755 $(GTK_BIN) "$(DESTDIR)$(PREFIX)/bin/$(GTK_BIN)"
 	@install -m 755 $(SRC_DIR)/install-pif-notify.sh "$(DESTDIR)$(PREFIX)/bin/install-pif-notify"
-	@mkdir -p "$(DESTDIR)/lib/systemd/system"
-	@install -m 644 $(SRC_DIR)/pif-notify.service "$(DESTDIR)/lib/systemd/system/pif-notify.service"
+	@mkdir -p "$(DESTDIR)/usr/lib/systemd/user"
+	@install -m 644 $(SRC_DIR)/pif-notify.service "$(DESTDIR)/usr/lib/systemd/user/pif-notify.service"
+	@install -m 644 $(SRC_DIR)/pif-notify.timer "$(DESTDIR)/usr/lib/systemd/user/pif-notify.timer"
 	@mkdir -p "$(DESTDIR)/usr/share/applications"
 	@install -m 644 $(SRC_DIR)/pif-gtk.desktop "$(DESTDIR)/usr/share/applications/pif-gtk.desktop"
+	@mkdir -p "$(DESTDIR)/usr/share/pif-gtk"
+	@install -m 644 logo.png "$(DESTDIR)/usr/share/pif-gtk/logo.png"
 	@echo "Installation complete."
 
 uninstall:
@@ -68,7 +71,8 @@ uninstall:
 	@rm -f "$(DESTDIR)$(PREFIX)/bin/$(BIN)"
 	@rm -f "$(DESTDIR)$(PREFIX)/bin/$(GTK_BIN)"
 	@rm -f "$(DESTDIR)$(PREFIX)/bin/install-pif-notify"
-	@rm -f "$(DESTDIR)/lib/systemd/system/pif-notify.service"
+	@rm -f "$(DESTDIR)/usr/lib/systemd/user/pif-notify.service"
+	@rm -f "$(DESTDIR)/usr/lib/systemd/user/pif-notify.timer"
 	@rm -f "$(DESTDIR)/usr/share/applications/pif-gtk.desktop"
 	@echo "Uninstallation complete."
 

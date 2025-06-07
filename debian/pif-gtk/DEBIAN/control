@@ -2,7 +2,7 @@ Package: pif-gtk
 Version: 0.0.1-1
 Architecture: amd64
 Maintainer: Lily <lily@hsmtp.uk>
-Installed-Size: 68
+Installed-Size: 20676
 Depends: libc6 (>= 2.38), libglib2.0-0t64 (>= 2.28.0), libgtk-3-0t64 (>= 3.3.16), libgtk-3-0, libnotify4, systemd
 Section: utils
 Priority: optional

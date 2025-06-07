@@ -16,16 +16,31 @@
 # along with pif.  If not, see <https://www.gnu.org/licenses/>.
 
 # Check if running as root
-if [ "$EUID" -ne 0 ]; then 
+if [ "$EUID" -ne 0 ]; then
     echo "Please run as root"
     exit 1
 fi
 
-# Enable the service for the current user
-systemctl enable pif-notify@$SUDO_USER
+# Get the original user's username (who initiated pkexec)
+# PKEXEC_UID is set by pkexec and holds the UID of the original user.
+if [ -z "$PKEXEC_UID" ]; then
+    echo "Error: PKEXEC_UID not set. This script must be run via pkexec (e.g., from a graphical application)."
+    exit 1
+fi
 
-# Start the service
-systemctl start pif-notify@$SUDO_USER
+ORIGINAL_USER=$(getent passwd "$PKEXEC_UID" | cut -d: -f1)
 
-echo "Service enabled and started for user $SUDO_USER"
-echo "To check status: sudo systemctl status pif-notify@$SUDO_USER"
+if [ -z "$ORIGINAL_USER" ]; then
+    echo "Error: Could not determine original user from PKEXEC_UID."
+    exit 1
+fi
+
+# Reload systemd user units for the original user
+systemctl --machine="$ORIGINAL_USER"@.host --user daemon-reload
+
+# Enable and start the service and timer for the original user
+systemctl --machine="$ORIGINAL_USER"@.host --user enable --now pif-notify.service
+systemctl --machine="$ORIGINAL_USER"@.host --user enable --now pif-notify.timer
+
+echo "PIF Song Rotation Service has been installed and enabled."
+echo "The service will run daily to show you which songs to practice."

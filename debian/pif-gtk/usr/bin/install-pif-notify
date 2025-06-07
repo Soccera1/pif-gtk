@@ -16,16 +16,27 @@
 # along with pif.  If not, see <https://www.gnu.org/licenses/>.
 
 # Check if running as root
-if [ "$EUID" -ne 0 ]; then 
+if [ "$EUID" -ne 0 ]; then
     echo "Please run as root"
     exit 1
 fi
 
-# Enable the service for the current user
-systemctl enable pif-notify@$SUDO_USER
+# Get the directory of the script
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 
-# Start the service
-systemctl start pif-notify@$SUDO_USER
+# Copy the binary
+cp "$SCRIPT_DIR/pif" /usr/local/bin/
+chmod +x /usr/local/bin/pif
 
-echo "Service enabled and started for user $SUDO_USER"
-echo "To check status: sudo systemctl status pif-notify@$SUDO_USER"
+# Copy the service file
+cp "$SCRIPT_DIR/pif-notify.service" /etc/systemd/system/
+
+# Reload systemd
+systemctl daemon-reload
+
+# Enable and start the service for the current user
+systemctl enable --now pif-notify.service
+systemctl enable --now pif-notify.timer
+
+echo "PIF Song Rotation Service has been installed and enabled."
+echo "The service will run daily to show you which songs to practice."

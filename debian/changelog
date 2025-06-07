@@ -1,3 +1,9 @@
+pif-gtk (0.0.1-2) unstable; urgency=medium
+
+  * Fix: `pif-gtk` now checks both `/usr/bin` and `/usr/local/bin` for `install-pif-notify`.
+
+ -- Lily <lily@hsmtp.uk>  Sat, 07 Jun 2025 18:00:00 +1000
+
 pif-gtk (0.0.1-1) unstable; urgency=medium
 
   * Initial release

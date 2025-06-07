@@ -1,12 +1,7 @@
-# Automatically added by dh_installsystemd/13.24.2
-if [ "$1" = remove ] && [ -d /run/systemd/system ] ; then
-	systemctl --system daemon-reload >/dev/null || true
-fi
-# End automatically added section
-# Automatically added by dh_installsystemd/13.24.2
+# Automatically added by dh_installsystemduser/13.24.2
 if [ "$1" = "purge" ]; then
-	if [ -x "/usr/bin/deb-systemd-helper" ]; then
-		deb-systemd-helper purge 'pif-notify.service' >/dev/null || true
+	if [ -z "$DPKG_ROOT" ] && [ -x "/usr/bin/deb-systemd-helper" ] ; then
+		deb-systemd-helper --user purge 'pif-notify.service' 'pif-notify.timer' >/dev/null || true
 	fi
 fi
 # End automatically added section

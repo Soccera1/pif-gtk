@@ -1,0 +1,53 @@
+Description: <short summary of the patch>
+ TODO: Put a short summary on the line above and replace this paragraph
+ with a longer explanation of this change. Complete the meta-information
+ with other relevant fields (see below for details). To make it easier, the
+ information below has been extracted from the changelog. Adjust it or drop
+ it.
+ .
+ pif-gtk (0.0.1-2) unstable; urgency=medium
+ .
+   * Fix: `pif-gtk` now checks both `/usr/bin` and `/usr/local/bin` for `install-pif-notify`.
+Author: Lily <lily@hsmtp.uk>
+
+---
+The information above should follow the Patch Tagging Guidelines, please
+checkout https://dep.debian.net/deps/dep3/ to learn about the format. Here
+are templates for supplementary fields that you might want to add:
+
+Origin: (upstream|backport|vendor|other), (<patch-url>|commit:<commit-id>)
+Bug: <upstream-bugtracker-url>
+Bug-Debian: https://bugs.debian.org/<bugnumber>
+Bug-Ubuntu: https://launchpad.net/bugs/<bugnumber>
+Forwarded: (no|not-needed|<patch-forwarded-url>)
+Applied-Upstream: <version>, (<commit-url>|commit:<commid-id>)
+Reviewed-By: <name and email of someone who approved/reviewed the patch>
+Last-Update: 2025-06-07
+
+--- pif-gtk-0.0.1.orig/src/pif-gtk.c
++++ pif-gtk-0.0.1/src/pif-gtk.c
+@@ -289,15 +289,21 @@ void enable_service(GtkWidget *widget, g
+         handle_error("Failed to get home directory");
+         return;
+     }
+-    snprintf(script_path, sizeof(script_path), "/usr/local/bin/install-pif-notify");
+ 
+-    // Check if the script exists
++    // First, try /usr/bin
++    snprintf(script_path, sizeof(script_path), "/usr/bin/install-pif-notify");
++    if (access(script_path, F_OK) == -1) {
++        // If not found in /usr/bin, try /usr/local/bin
++        snprintf(script_path, sizeof(script_path), "/usr/local/bin/install-pif-notify");
++    }
++
++    // Check if the script exists in either location
+     if (access(script_path, F_OK) == -1) {
+         GtkWidget *dialog = gtk_message_dialog_new(NULL,
+             GTK_DIALOG_MODAL,
+             GTK_MESSAGE_ERROR,
+             GTK_BUTTONS_OK,
+-            "Installation script not found. Please run 'make install' first.");
++            "Installation script not found. Please ensure it's installed and executable.");
+         gtk_dialog_run(GTK_DIALOG(dialog));
+         gtk_widget_destroy(dialog);
+         return;

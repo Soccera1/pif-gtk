@@ -19,8 +19,10 @@ Depends:
  ${misc:Depends},
  libgtk-3-0,
  libnotify4,
- systemd
-Description: GTK-based piano practice song manager
+ systemd,
+ libnotify-bin,
+ polkitd
+Description: GTK-based piano practice song manager with rotation and notification features
  pif-gtk is a graphical tool for managing piano practice songs and their practice frequencies.
  It allows users to add, remove, and modify songs along with their practice intervals.
- The application integrates with the system's notification system to remind users of practice schedules.
+ It now includes a rotation feature to suggest daily songs and integrates with the system's notification system to remind users of practice schedules.

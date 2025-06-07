@@ -1,0 +1,7 @@
+debian/tmp/usr/local/bin/pif
+debian/tmp/usr/local/bin/pif-gtk
+debian/tmp/usr/local/bin/install-pif-notify
+debian/tmp/usr/lib/systemd/user/pif-notify.service
+debian/tmp/usr/lib/systemd/user/pif-notify.timer
+debian/tmp/usr/share/applications/pif-gtk.desktop
+debian/tmp/usr/share/pif-gtk/logo.png

@@ -1,12 +1,12 @@
 Package: pif-gtk-dbgsym
 Source: pif-gtk
-Version: 0.0.1-1
+Version: 0.0.1-2
 Auto-Built-Package: debug-symbols
 Architecture: amd64
 Maintainer: Lily <lily@hsmtp.uk>
 Installed-Size: 62
-Depends: pif-gtk (= 0.0.1-1)
+Depends: pif-gtk (= 0.0.1-2)
 Section: debug
 Priority: optional
 Description: debug symbols for pif-gtk
-Build-Ids: 0fb6e4c6e7bf4457f61b5a19c9fdb53c1a10d115 fb44068b27214532cdc6a81169bb132de4094410
+Build-Ids: 0fb6e4c6e7bf4457f61b5a19c9fdb53c1a10d115 f361d03ebc0b749e33f572596f7dec133e2355f7

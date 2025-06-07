@@ -289,15 +289,21 @@ void enable_service(GtkWidget *widget, gpointer data) {
         handle_error("Failed to get home directory");
         return;
     }
-    snprintf(script_path, sizeof(script_path), "/usr/local/bin/install-pif-notify");
 
-    // Check if the script exists
+    // First, try /usr/bin
+    snprintf(script_path, sizeof(script_path), "/usr/bin/install-pif-notify");
+    if (access(script_path, F_OK) == -1) {
+        // If not found in /usr/bin, try /usr/local/bin
+        snprintf(script_path, sizeof(script_path), "/usr/local/bin/install-pif-notify");
+    }
+
+    // Check if the script exists in either location
     if (access(script_path, F_OK) == -1) {
         GtkWidget *dialog = gtk_message_dialog_new(NULL,
             GTK_DIALOG_MODAL,
             GTK_MESSAGE_ERROR,
             GTK_BUTTONS_OK,
-            "Installation script not found. Please run 'make install' first.");
+            "Installation script not found. Please ensure it's installed and executable.");
         gtk_dialog_run(GTK_DIALOG(dialog));
         gtk_widget_destroy(dialog);
         return;

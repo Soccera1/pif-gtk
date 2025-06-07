@@ -1,3 +1,3 @@
-pif-gtk-dbgsym_0.0.1-1_amd64.deb debug optional automatic=yes
-pif-gtk_0.0.1-1_amd64.buildinfo utils optional
-pif-gtk_0.0.1-1_amd64.deb utils optional
+pif-gtk-dbgsym_0.0.1-2_amd64.deb debug optional automatic=yes
+pif-gtk_0.0.1-2_amd64.buildinfo utils optional
+pif-gtk_0.0.1-2_amd64.deb utils optional

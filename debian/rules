@@ -17,4 +17,24 @@ export DEB_LDFLAGS_MAINT_APPEND = -Wl,--as-needed
 	dh $@
 
 override_dh_auto_install:
-	dh_auto_install -- PREFIX=/usr
+	# Build and install upstream targets into debian/tmp/usr/local/bin, debian/tmp/lib/systemd/user, etc.
+	$(MAKE) install DESTDIR=$(CURDIR)/debian/tmp
+	@echo "--- Contents of debian/tmp after make install ---"
+	@ls -R $(CURDIR)/debian/tmp
+	@echo "--------------------------------------------------"
+
+override_dh_install:
+	# Install binaries to /usr/bin from their temporary /usr/local/bin location
+	dh_install --sourcedir=debian/tmp "usr/local/bin/pif" /usr/bin/
+	dh_install --sourcedir=debian/tmp "usr/local/bin/pif-gtk" /usr/bin/
+	dh_install --sourcedir=debian/tmp "usr/local/bin/install-pif-notify" /usr/bin/
+
+	# Install systemd user units from their temporary /usr/lib/systemd/user location
+	dh_install --sourcedir=debian/tmp "usr/lib/systemd/user/pif-notify.service" /usr/lib/systemd/user/
+	dh_install --sourcedir=debian/tmp "usr/lib/systemd/user/pif-notify.timer" /usr/lib/systemd/user/
+
+	# Install desktop file to /usr/share/applications/ from its temporary /usr/share/applications location
+	dh_install --sourcedir=debian/tmp "usr/share/applications/pif-gtk.desktop" /usr/share/applications/
+
+	# Install logo.png to /usr/share/pif-gtk/ from its temporary /usr/share/pif-gtk location
+	dh_install --sourcedir=debian/tmp "usr/share/pif-gtk/logo.png" /usr/share/pif-gtk/

@@ -21,22 +21,26 @@ if [ "$EUID" -ne 0 ]; then
     exit 1
 fi
 
-# Get the directory of the script
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+# Get the original user's username (who initiated pkexec)
+# PKEXEC_UID is set by pkexec and holds the UID of the original user.
+if [ -z "$PKEXEC_UID" ]; then
+    echo "Error: PKEXEC_UID not set. This script must be run via pkexec (e.g., from a graphical application)."
+    exit 1
+fi
 
-# Copy the binary
-cp "$SCRIPT_DIR/pif" /usr/local/bin/
-chmod +x /usr/local/bin/pif
+ORIGINAL_USER=$(getent passwd "$PKEXEC_UID" | cut -d: -f1)
 
-# Copy the service file
-cp "$SCRIPT_DIR/pif-notify.service" /etc/systemd/system/
+if [ -z "$ORIGINAL_USER" ]; then
+    echo "Error: Could not determine original user from PKEXEC_UID."
+    exit 1
+fi
 
-# Reload systemd
-systemctl daemon-reload
+# Reload systemd user units for the original user
+systemctl --machine="$ORIGINAL_USER"@.host --user daemon-reload
 
-# Enable and start the service for the current user
-systemctl enable --now pif-notify.service
-systemctl enable --now pif-notify.timer
+# Enable and start the service and timer for the original user
+systemctl --machine="$ORIGINAL_USER"@.host --user enable --now pif-notify.service
+systemctl --machine="$ORIGINAL_USER"@.host --user enable --now pif-notify.timer
 
 echo "PIF Song Rotation Service has been installed and enabled."
 echo "The service will run daily to show you which songs to practice."

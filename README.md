@@ -9,10 +9,12 @@ A simple song management tool with both CLI and GTK interfaces.
 - C compiler (GCC recommended)
 - GTK+ 3.0 development files (for GTK interface)
 - pkg-config
+- libnotify-bin (for desktop notifications)
+- polkitd (for privilege escalation via pkexec)
 
 On Debian/Ubuntu, you can install the dependencies with:
 ```bash
-sudo apt-get install build-essential libgtk-3-dev pkg-config
+sudo apt-get install build-essential libgtk-3-dev pkg-config libnotify-bin polkitd
 ```
 
 ### Compilation

@@ -96,6 +96,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ../pif-gtk_0.0.${{ github.run_number }}_amd64.deb
+          asset_path: ../pif-gtk_${{ steps.get_next_version.outputs.NEXT_VERSION_DEB }}_amd64.deb
           asset_name: pif-gtk_${{ steps.get_next_version.outputs.NEXT_VERSION_DEB }}_amd64.deb
           asset_content_type: application/vnd.debian.binary-package

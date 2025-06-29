@@ -54,6 +54,10 @@ Run `pif-gtk` to start the graphical interface.
 - Simple and intuitive interface (GTK version)
 - Command-line interface for automation (CLI version)
 
+## Visual demonstration
+![2025-06-29-131018_1920x1200_scrot](https://github.com/user-attachments/assets/88710cf9-c46b-43ce-8a68-b359847a45da)
+
+
 ## License
 
 This project is licensed under the GNU Affero General Public License v3.0 - see the [LICENSE](LICENSE) file for details.

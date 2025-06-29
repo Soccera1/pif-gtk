@@ -55,7 +55,7 @@ Run `pif-gtk` to start the graphical interface.
 - Command-line interface for automation (CLI version)
 
 ## Visual demonstration
-![2025-06-29-131018_1920x1200_scrot](https://github.com/user-attachments/assets/88710cf9-c46b-43ce-8a68-b359847a45da)
+![2025-06-29-131018_1920x1200_scrot](https://github.com/user-attachments/assets/bc2bc5dd-75f1-4868-9f3d-675407968827)
 
 
 ## License

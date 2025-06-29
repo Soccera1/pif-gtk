@@ -44,7 +44,7 @@ Run `pif` to start the command-line interface.
 
 ### GTK Version
 
-Run `pif-gtk` to start the graphical interface.
+Run `pif-gtk` from an application launcher to start the graphical interface.
 
 ## Features
 

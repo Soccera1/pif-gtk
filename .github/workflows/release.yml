@@ -52,19 +52,30 @@ jobs:
           dch -v ${{ steps.get_next_version.outputs.NEXT_VERSION_DEB }} "New release"
           dpkg-buildpackage -us -uc
 
+      - name: Check if tag exists
+        id: check_tag
+        run: |
+          if git rev-parse ${{ steps.get_next_version.outputs.NEXT_VERSION }} >/dev/null 2>&1; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Create Release
         id: create_release
+        if: steps.check_tag.outputs.exists == 'false'
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ steps.get_next_version.outputs.NEXT_VERSION }}
-          release_name: Release ${{ steps.get_next_version.outputs.NEXT_VERSION }}
+          release_name: ${{ steps.get_next_version.outputs.NEXT_VERSION }}
           body: ${{ github.event.head_commit.message }}
           draft: false
           prerelease: false
 
       - name: Upload pif binary
+        if: steps.check_tag.outputs.exists == 'false'
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -75,6 +86,7 @@ jobs:
           asset_content_type: application/octet-stream
 
       - name: Upload pif-gtk binary
+        if: steps.check_tag.outputs.exists == 'false'
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -85,6 +97,7 @@ jobs:
           asset_content_type: application/octet-stream
 
       - name: Upload Debian package
+        if: steps.check_tag.outputs.exists == 'false'
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

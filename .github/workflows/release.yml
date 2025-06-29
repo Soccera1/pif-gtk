@@ -24,9 +24,23 @@ jobs:
       - name: Build binaries
         run: make
 
+      - name: Get next version
+        id: get_next_version
+        run: |
+          LATEST_TAG=$(git describe --tags --match "v1.0.*" --abbrev=0 2>/dev/null || echo "v1.0.0")
+          if [[ "$LATEST_TAG" == "v1.0.0" ]]; then
+            NEXT_VERSION="v1.0.0"
+          else
+            # Extract the patch number and increment it
+            PATCH_NUMBER=$(echo "$LATEST_TAG" | sed 's/v1.0.//')
+            NEXT_PATCH=$((PATCH_NUMBER + 1))
+            NEXT_VERSION="v1.0.${NEXT_PATCH}"
+          fi
+          echo "NEXT_VERSION=$NEXT_VERSION" >> $GITHUB_OUTPUT
+
       - name: Create upstream tarball
         run: |
-          VERSION="0.0.${{ github.run_number }}"
+          VERSION="${{ steps.get_next_version.outputs.NEXT_VERSION }}"
           PACKAGE_NAME="pif-gtk"
           TARBALL_NAME="${PACKAGE_NAME}_${VERSION}.orig.tar.gz"
           git archive --format=tar.gz --prefix=${PACKAGE_NAME}-${VERSION}/ HEAD > ../${TARBALL_NAME}
@@ -35,7 +49,7 @@ jobs:
         run: |
           export DEBEMAIL="action@github.com"
           export EMAIL="action@github.com"
-          dch -v 0.0.${{ github.run_number }} "New release"
+          dch -v ${{ steps.get_next_version.outputs.NEXT_VERSION }} "New release"
           dpkg-buildpackage -us -uc
 
       - name: Create Release
@@ -44,8 +58,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ github.sha }}
-          release_name: Release ${{ github.sha }}
+          tag_name: ${{ steps.get_next_version.outputs.NEXT_VERSION }}
+          release_name: Release ${{ steps.get_next_version.outputs.NEXT_VERSION }}
           body: ${{ github.event.head_commit.message }}
           draft: false
           prerelease: false
@@ -81,5 +95,5 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ../pif-gtk_0.0.${{ github.run_number }}_amd64.deb
-          asset_name: pif-gtk_0.0.${{ github.run_number }}_amd64.deb
+          asset_name: pif-gtk_${{ steps.get_next_version.outputs.NEXT_VERSION }}_amd64.deb
           asset_content_type: application/vnd.debian.binary-package

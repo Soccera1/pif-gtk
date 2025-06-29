@@ -27,11 +27,10 @@ jobs:
       - name: Get next version
         id: get_next_version
         run: |
-          LATEST_TAG=$(git describe --tags --match "v1.0.*" --abbrev=0 2>/dev/null || echo "v1.0.0")
-          if [[ "$LATEST_TAG" == "v1.0.0" ]]; then
+          LATEST_TAG=$(git tag --list "v1.0.*" | sort -V | tail -n1)
+          if [[ -z "$LATEST_TAG" ]]; then
             NEXT_VERSION="v1.0.0"
           else
-            # Extract the patch number and increment it
             PATCH_NUMBER=$(echo "$LATEST_TAG" | sed 's/v1.0.//')
             NEXT_PATCH=$((PATCH_NUMBER + 1))
             NEXT_VERSION="v1.0.${NEXT_PATCH}"

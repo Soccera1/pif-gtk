@@ -36,7 +36,9 @@ jobs:
             NEXT_PATCH=$((PATCH_NUMBER + 1))
             NEXT_VERSION="v1.0.${NEXT_PATCH}"
           fi
+          NEXT_VERSION_DEB="${NEXT_VERSION#v}"
           echo "NEXT_VERSION=$NEXT_VERSION" >> $GITHUB_OUTPUT
+          echo "NEXT_VERSION_DEB=$NEXT_VERSION_DEB" >> $GITHUB_OUTPUT
 
       - name: Create upstream tarball
         run: |
@@ -49,7 +51,7 @@ jobs:
         run: |
           export DEBEMAIL="action@github.com"
           export EMAIL="action@github.com"
-          dch -v ${{ steps.get_next_version.outputs.NEXT_VERSION }} "New release"
+          dch -v ${{ steps.get_next_version.outputs.NEXT_VERSION_DEB }} "New release"
           dpkg-buildpackage -us -uc
 
       - name: Create Release
@@ -95,5 +97,5 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ../pif-gtk_0.0.${{ github.run_number }}_amd64.deb
-          asset_name: pif-gtk_${{ steps.get_next_version.outputs.NEXT_VERSION }}_amd64.deb
+          asset_name: pif-gtk_${{ steps.get_next_version.outputs.NEXT_VERSION_DEB }}_amd64.deb
           asset_content_type: application/vnd.debian.binary-package

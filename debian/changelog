@@ -1,4 +1,4 @@
-pif-gtk (0.0.1-2) unstable; urgency=medium
+pif-gtk (0.0.3) unstable; urgency=medium
 
   * Fix: `pif-gtk` now checks both `/usr/bin` and `/usr/local/bin` for `install-pif-notify`.
 

@@ -21,6 +21,13 @@ jobs:
       - name: Build binaries
         run: make
 
+      - name: Create upstream tarball
+        run: |
+          VERSION="0.0.${{ github.run_number }}"
+          PACKAGE_NAME="pif-gtk"
+          TARBALL_NAME="${PACKAGE_NAME}_${VERSION}.orig.tar.gz"
+          git archive --format=tar.gz --prefix=${PACKAGE_NAME}-${VERSION}/ HEAD > ../${TARBALL_NAME}
+
       - name: Build Debian package
         run: |
           export DEBEMAIL="action@github.com"
@@ -70,6 +77,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ../pif-gtk_${{ github.sha }}_amd64.deb
-          asset_name: pif-gtk_${{ github.sha }}_amd64.deb
+          asset_path: ../pif-gtk_0.0.${{ github.run_number }}_amd64.deb
+          asset_name: pif-gtk_0.0.${{ github.run_number }}_amd64.deb
           asset_content_type: application/vnd.debian.binary-package

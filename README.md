@@ -58,7 +58,7 @@ pif
 
 Launch `pif-gtk` from your desktop's application launcher to start the graphical interface.
 
-## 🖼️ Screenshot
+## 🖼️ Screenshot of installation process
 
 ![pif-gtk screenshot](https://github.com/user-attachments/assets/bc2bc5dd-75f1-4868-9f3d-675407968827)
 

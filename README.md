@@ -4,6 +4,8 @@ A simple song management tool with both CLI and GTK interfaces.
 
 ## Building
 
+### When you encounter a `code block`, run it in a terminal if required.
+
 ### Dependencies
 
 - C compiler (GCC recommended)

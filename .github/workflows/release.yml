@@ -1,4 +1,3 @@
-
 name: Release
 
 on:
@@ -27,139 +26,11 @@ jobs:
       - name: Get next version
         id: get_next_version
         run: |
-          LATEST_TAG=$(git tag --list "v1.0.*" | grep -E '^v1\.0\.[0-9]+
-          NEXT_VERSION_DEB="${NEXT_VERSION#v}"
-          echo "NEXT_VERSION=$NEXT_VERSION" >> $GITHUB_OUTPUT
-          echo "NEXT_VERSION_DEB=$NEXT_VERSION_DEB" >> $GITHUB_OUTPUT
-
-      - name: Create upstream tarball
-        run: |
-          VERSION="${{ steps.get_next_version.outputs.NEXT_VERSION_DEB }}"
-          PACKAGE_NAME="pif-gtk"
-          TARBALL_NAME="${PACKAGE_NAME}_${VERSION}.orig.tar.gz"
-          git archive --format=tar.gz --prefix=${PACKAGE_NAME}-${VERSION}/ HEAD > ../${TARBALL_NAME}
-
-      - name: Build Debian package
-        run: |
-          export DEBEMAIL="action@github.com"
-          export EMAIL="action@github.com"
-          dch -v ${{ steps.get_next_version.outputs.NEXT_VERSION_DEB }} "New release"
-          dpkg-buildpackage -us -uc
-
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ steps.get_next_version.outputs.NEXT_VERSION }}
-          release_name: Release ${{ steps.get_next_version.outputs.NEXT_VERSION }}
-          body: ${{ github.event.head_commit.message }}
-          draft: false
-          prerelease: false
-
-      
-
-      
-
-      - name: Upload pif binary
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./pif
-          asset_name: pif
-          asset_content_type: application/octet-stream
-
-      - name: Upload pif-gtk binary
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./pif-gtk
-          asset_name: pif-gtk
-          asset_content_type: application/octet-stream
-
-      - name: Upload Debian package
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ../pif-gtk_${{ steps.get_next_version.outputs.NEXT_VERSION_DEB }}_amd64.deb
-          asset_name: pif-gtk_${{ steps.get_next_version.outputs.NEXT_VERSION_DEB }}_amd64.deb
-          asset_content_type: application/vnd.debian.binary-package
- | sort -V | tail -n1)
+          LATEST_TAG=$(git tag --list "v1.0.*" | grep -E '^v1\.0\.[0-9]+$' | sort -V | tail -n1)
           if [[ -z "$LATEST_TAG" ]]; then
             NEXT_VERSION="v1.0.0"
           else
-            PATCH_NUMBER=$(echo "$LATEST_TAG" | grep -oE '[0-9]+
-          NEXT_VERSION_DEB="${NEXT_VERSION#v}"
-          echo "NEXT_VERSION=$NEXT_VERSION" >> $GITHUB_OUTPUT
-          echo "NEXT_VERSION_DEB=$NEXT_VERSION_DEB" >> $GITHUB_OUTPUT
-
-      - name: Create upstream tarball
-        run: |
-          VERSION="${{ steps.get_next_version.outputs.NEXT_VERSION_DEB }}"
-          PACKAGE_NAME="pif-gtk"
-          TARBALL_NAME="${PACKAGE_NAME}_${VERSION}.orig.tar.gz"
-          git archive --format=tar.gz --prefix=${PACKAGE_NAME}-${VERSION}/ HEAD > ../${TARBALL_NAME}
-
-      - name: Build Debian package
-        run: |
-          export DEBEMAIL="action@github.com"
-          export EMAIL="action@github.com"
-          dch -v ${{ steps.get_next_version.outputs.NEXT_VERSION_DEB }} "New release"
-          dpkg-buildpackage -us -uc
-
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ steps.get_next_version.outputs.NEXT_VERSION }}
-          release_name: Release ${{ steps.get_next_version.outputs.NEXT_VERSION }}
-          body: ${{ github.event.head_commit.message }}
-          draft: false
-          prerelease: false
-
-      
-
-      
-
-      - name: Upload pif binary
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./pif
-          asset_name: pif
-          asset_content_type: application/octet-stream
-
-      - name: Upload pif-gtk binary
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./pif-gtk
-          asset_name: pif-gtk
-          asset_content_type: application/octet-stream
-
-      - name: Upload Debian package
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ../pif-gtk_${{ steps.get_next_version.outputs.NEXT_VERSION_DEB }}_amd64.deb
-          asset_name: pif-gtk_${{ steps.get_next_version.outputs.NEXT_VERSION_DEB }}_amd64.deb
-          asset_content_type: application/vnd.debian.binary-package
-)
+            PATCH_NUMBER=$(echo "$LATEST_TAG" | grep -oE '[0-9]+$')
             NEXT_PATCH=$((PATCH_NUMBER + 1))
             NEXT_VERSION="v1.0.${NEXT_PATCH}"
           fi
@@ -192,10 +63,6 @@ jobs:
           body: ${{ github.event.head_commit.message }}
           draft: false
           prerelease: false
-
-      
-
-      
 
       - name: Upload pif binary
         uses: actions/upload-release-asset@v1

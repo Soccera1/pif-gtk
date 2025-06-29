@@ -16,13 +16,17 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y debhelper-compat libgtk-3-dev libnotify-dev pkg-config devscripts
+          sudo apt-get install -y build-essential debhelper-compat libgtk-3-dev libnotify-dev pkg-config devscripts
 
       - name: Build binaries
         run: make
 
       - name: Build Debian package
-        run: dch -v ${{ github.sha }} "New release" && dpkg-buildpackage -us -uc
+        run: |
+          export DEBEMAIL="action@github.com"
+          export EMAIL="action@github.com"
+          dch -v ${{ github.sha }} "New release"
+          dpkg-buildpackage -us -uc
 
       - name: Create Release
         id: create_release

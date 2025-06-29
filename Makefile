@@ -13,26 +13,43 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with pif.  If not, see <https://www.gnu.org/licenses/>.
 
+# Compiler and flags
 CC ?= gcc
 CFLAGS ?= -Wall -Wextra -std=c17 -O3 -flto
 GTK_CFLAGS := $(shell pkg-config --cflags gtk+-3.0)
 GTK_LIBS := $(shell pkg-config --libs gtk+-3.0)
 
-PREFIX ?= /usr/local
-BIN := pif
-GTK_BIN := pif-gtk
+# Project structure
 SRC_DIR := src
 OBJ_DIR := build
+
+# Binaries
+CLI_BIN := pif
+GTK_BIN := pif-gtk
+
+# Source and object files
 CLI_SRC := $(SRC_DIR)/pif.c
 GTK_SRC := $(SRC_DIR)/pif-gtk.c
 CLI_OBJ := $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.o,$(CLI_SRC))
 GTK_OBJ := $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.o,$(GTK_SRC))
+
+# Dependency files
 CLI_DEP := $(CLI_OBJ:.o=.d)
 GTK_DEP := $(GTK_OBJ:.o=.d)
 
-all: $(BIN) $(GTK_BIN)
+# Installation paths
+PREFIX ?= /usr/local
+BIN_DIR := $(DESTDIR)$(PREFIX)/bin
+SYSTEMD_USER_DIR := $(DESTDIR)/usr/lib/systemd/user
+APPLICATIONS_DIR := $(DESTDIR)/usr/share/applications
+PIF_GTK_SHARE_DIR := $(DESTDIR)/usr/share/pif-gtk
 
-$(BIN): $(CLI_OBJ)
+.PHONY: all clean install uninstall
+
+all: $(CLI_BIN) $(GTK_BIN)
+
+# Build rules
+$(CLI_BIN): $(CLI_OBJ)
 	$(CC) $(CFLAGS) -o $@ $^
 
 $(GTK_BIN): $(GTK_OBJ)
@@ -48,32 +65,35 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c | $(OBJ_DIR)
 $(OBJ_DIR):
 	@mkdir -p $@
 
+# Housekeeping
 clean:
-	@rm -rf $(OBJ_DIR) $(BIN) $(GTK_BIN)
+	@echo "Cleaning up..."
+	@rm -rf $(OBJ_DIR) $(CLI_BIN) $(GTK_BIN)
 
+# Installation
 install: all
-	@echo "Installing $(BIN), $(GTK_BIN) and service files..."
-	@mkdir -p "$(DESTDIR)$(PREFIX)/bin"
-	@install -m 755 $(BIN) "$(DESTDIR)$(PREFIX)/bin/$(BIN)"
-	@install -m 755 $(GTK_BIN) "$(DESTDIR)$(PREFIX)/bin/$(GTK_BIN)"
-	@install -m 755 $(SRC_DIR)/install-pif-notify.sh "$(DESTDIR)$(PREFIX)/bin/install-pif-notify"
-	@mkdir -p "$(DESTDIR)/usr/lib/systemd/user"
-	@install -m 644 $(SRC_DIR)/pif-notify.service "$(DESTDIR)/usr/lib/systemd/user/pif-notify.service"
-	@install -m 644 $(SRC_DIR)/pif-notify.timer "$(DESTDIR)/usr/lib/systemd/user/pif-notify.timer"
-	@mkdir -p "$(DESTDIR)/usr/share/applications"
-	@install -m 644 $(SRC_DIR)/pif-gtk.desktop "$(DESTDIR)/usr/share/applications/pif-gtk.desktop"
-	@mkdir -p "$(DESTDIR)/usr/share/pif-gtk"
-	@install -m 644 logo.png "$(DESTDIR)/usr/share/pif-gtk/logo.png"
+	@echo "Installing $(CLI_BIN), $(GTK_BIN) and service files..."
+	@mkdir -p "$(BIN_DIR)"
+	@install -m 755 $(CLI_BIN) "$(BIN_DIR)/$(CLI_BIN)"
+	@install -m 755 $(GTK_BIN) "$(BIN_DIR)/$(GTK_BIN)"
+	@install -m 755 $(SRC_DIR)/install-pif-notify.sh "$(BIN_DIR)/install-pif-notify"
+	@mkdir -p "$(SYSTEMD_USER_DIR)"
+	@install -m 644 $(SRC_DIR)/pif-notify.service "$(SYSTEMD_USER_DIR)/pif-notify.service"
+	@install -m 644 $(SRC_DIR)/pif-notify.timer "$(SYSTEMD_USER_DIR)/pif-notify.timer"
+	@mkdir -p "$(APPLICATIONS_DIR)"
+	@install -m 644 $(SRC_DIR)/pif-gtk.desktop "$(APPLICATIONS_DIR)/pif-gtk.desktop"
+	@mkdir -p "$(PIF_GTK_SHARE_DIR)"
+	@install -m 644 logo.png "$(PIF_GTK_SHARE_DIR)/logo.png"
 	@echo "Installation complete."
 
+# Uninstallation
 uninstall:
-	@echo "Uninstalling $(BIN), $(GTK_BIN) and service files..."
-	@rm -f "$(DESTDIR)$(PREFIX)/bin/$(BIN)"
-	@rm -f "$(DESTDIR)$(PREFIX)/bin/$(GTK_BIN)"
-	@rm -f "$(DESTDIR)$(PREFIX)/bin/install-pif-notify"
-	@rm -f "$(DESTDIR)/usr/lib/systemd/user/pif-notify.service"
-	@rm -f "$(DESTDIR)/usr/lib/systemd/user/pif-notify.timer"
-	@rm -f "$(DESTDIR)/usr/share/applications/pif-gtk.desktop"
+	@echo "Uninstalling $(CLI_BIN), $(GTK_BIN) and service files..."
+	@rm -f "$(BIN_DIR)/$(CLI_BIN)"
+	@rm -f "$(BIN_DIR)/$(GTK_BIN)"
+	@rm -f "$(BIN_DIR)/install-pif-notify"
+	@rm -f "$(SYSTEMD_USER_DIR)/pif-notify.service"
+	@rm -f "$(SYSTEMD_USER_DIR)/pif-notify.timer"
+	@rm -f "$(APPLICATIONS_DIR)/pif-gtk.desktop"
+	@rm -rf "$(PIF_GTK_SHARE_DIR)"
 	@echo "Uninstallation complete."
-
-.PHONY: all clean install uninstall

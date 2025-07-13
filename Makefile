@@ -28,8 +28,10 @@ CLI_BIN := pif
 GTK_BIN := pif-gtk
 
 # Source and object files
+COMMON_SRC := $(SRC_DIR)/pif_common.c
 CLI_SRC := $(SRC_DIR)/pif.c
 GTK_SRC := $(SRC_DIR)/pif-gtk.c
+COMMON_OBJ := $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.o,$(COMMON_SRC))
 CLI_OBJ := $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.o,$(CLI_SRC))
 GTK_OBJ := $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.o,$(GTK_SRC))
 
@@ -44,15 +46,19 @@ SYSTEMD_USER_DIR := $(DESTDIR)/usr/lib/systemd/user
 APPLICATIONS_DIR := $(DESTDIR)/usr/share/applications
 PIF_GTK_SHARE_DIR := $(DESTDIR)/usr/share/pif-gtk
 
-.PHONY: all clean install uninstall
+.PHONY: all clean install uninstall cli gui
 
-all: $(CLI_BIN) $(GTK_BIN)
+all: cli gui
+
+cli: $(CLI_BIN)
+
+gui: $(GTK_BIN)
 
 # Build rules
-$(CLI_BIN): $(CLI_OBJ)
+$(CLI_BIN): $(COMMON_OBJ) $(CLI_OBJ)
 	$(CC) $(CFLAGS) -o $@ $^
 
-$(GTK_BIN): $(GTK_OBJ)
+$(GTK_BIN): $(COMMON_OBJ) $(GTK_OBJ)
 	$(CC) $(CFLAGS) -o $@ $^ $(GTK_LIBS)
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c | $(OBJ_DIR)
@@ -72,9 +78,10 @@ clean:
 
 # Installation
 install: all
-	@echo "Installing $(CLI_BIN), $(GTK_BIN) and service files..."
+	@echo "Installing..."
 	@mkdir -p "$(BIN_DIR)"
 	@install -m 755 $(CLI_BIN) "$(BIN_DIR)/$(CLI_BIN)"
+ifndef CLI_ONLY
 	@install -m 755 $(GTK_BIN) "$(BIN_DIR)/$(GTK_BIN)"
 	@install -m 755 $(SRC_DIR)/install-pif-notify.sh "$(BIN_DIR)/install-pif-notify"
 	@mkdir -p "$(SYSTEMD_USER_DIR)"
@@ -84,11 +91,12 @@ install: all
 	@install -m 644 $(SRC_DIR)/pif-gtk.desktop "$(APPLICATIONS_DIR)/pif-gtk.desktop"
 	@mkdir -p "$(PIF_GTK_SHARE_DIR)"
 	@install -m 644 logo.png "$(PIF_GTK_SHARE_DIR)/logo.png"
+endif
 	@echo "Installation complete."
 
 # Uninstallation
 uninstall:
-	@echo "Uninstalling $(CLI_BIN), $(GTK_BIN) and service files..."
+	@echo "Uninstalling..."
 	@rm -f "$(BIN_DIR)/$(CLI_BIN)"
 	@rm -f "$(BIN_DIR)/$(GTK_BIN)"
 	@rm -f "$(BIN_DIR)/install-pif-notify"

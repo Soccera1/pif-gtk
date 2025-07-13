@@ -16,6 +16,7 @@
  */
 
 #define _GNU_SOURCE
+#define PIF_GTK
 #include <gtk/gtk.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -25,6 +26,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <errno.h>
+#include "pif.h"
 
 // Global variables
 GtkWidget *song_list;
@@ -32,10 +34,8 @@ GtkWidget *song_entry;
 GtkWidget *freq_entry;
 char *fileloc;
 char *configloc;  // New config file location
-int songs_per_day = 3;  // Default value
-int last_played = 0;    // Track last played song
 
-void handle_error(const char *msg) {
+void handle_error_gtk(const char *msg) {
     GtkWidget *dialog = gtk_message_dialog_new(NULL,
         GTK_DIALOG_MODAL,
         GTK_MESSAGE_ERROR,
@@ -51,7 +51,7 @@ void load_songs(void) {
     FILE *file = fopen(fileloc, "r");
     if (file == NULL) {
         if (errno != ENOENT) {
-            handle_error("Failed to open file");
+            handle_error_gtk("Failed to open file");
         }
         return;
     }
@@ -73,7 +73,7 @@ void load_songs(void) {
 void save_songs(void) {
     FILE *file = fopen(fileloc, "w");
     if (file == NULL) {
-        handle_error("Failed to open file for writing");
+        handle_error_gtk("Failed to open file for writing");
         return;
     }
 
@@ -88,37 +88,6 @@ void save_songs(void) {
         g_free(song);
         valid = gtk_tree_model_iter_next(GTK_TREE_MODEL(store), &iter);
     }
-    fclose(file);
-}
-
-void load_rotation_config(void) {
-    FILE *file = fopen(configloc, "r");
-    if (file == NULL) {
-        if (errno != ENOENT) {
-            handle_error("Failed to open config file");
-        }
-        return;
-    }
-
-    char line[256];
-    if (fgets(line, sizeof(line), file)) {
-        sscanf(line, "songs_per_day=%d\n", &songs_per_day);
-    }
-    if (fgets(line, sizeof(line), file)) {
-        sscanf(line, "last_played=%d\n", &last_played);
-    }
-    fclose(file);
-}
-
-void save_rotation_config(void) {
-    FILE *file = fopen(configloc, "w");
-    if (file == NULL) {
-        handle_error("Failed to open config file for writing");
-        return;
-    }
-
-    fprintf(file, "songs_per_day=%d\n", songs_per_day);
-    fprintf(file, "last_played=%d\n", last_played);
     fclose(file);
 }
 
@@ -158,7 +127,7 @@ void show_settings(GtkWidget *widget, gpointer data) {
         long new_songs = strtol(songs_text, &endptr, 10);
         if (*endptr == '\0' && new_songs > 0) {
             songs_per_day = (int)new_songs;
-            save_rotation_config();
+            save_rotation_config(configloc);
         } else {
             GtkWidget *error_dialog = gtk_message_dialog_new(NULL,
                 GTK_DIALOG_MODAL,
@@ -303,7 +272,7 @@ void enable_service(GtkWidget *widget, gpointer data) {
     char script_path[512];
     char* homedir = getenv("HOME");
     if (homedir == NULL) {
-        handle_error("Failed to get home directory");
+        handle_error_gtk("Failed to get home directory");
         return;
     }
 
@@ -363,6 +332,55 @@ void enable_service(GtkWidget *widget, gpointer data) {
     gtk_widget_destroy(dialog);
 }
 
+void view_as_html(GtkWidget *widget, gpointer data) {
+    (void)widget;
+    (void)data;
+
+    FILE *pipe = popen("pif html", "r");
+    if (!pipe) {
+        handle_error_gtk("Failed to run pif command");
+        return;
+    }
+
+    char temp_html_file[] = "/tmp/pif-gtk-XXXXXX.html";
+    int fd = mkstemps(temp_html_file, 5);
+    if (fd == -1) {
+        pclose(pipe);
+        handle_error_gtk("Failed to create temporary file");
+        return;
+    }
+
+    FILE *html_file = fdopen(fd, "w");
+    if (!html_file) {
+        pclose(pipe);
+        close(fd);
+        handle_error_gtk("Failed to open temporary file for writing");
+        return;
+    }
+
+    char buffer[1024];
+    size_t n;
+    while ((n = fread(buffer, 1, sizeof(buffer), pipe)) > 0) {
+        fwrite(buffer, 1, n, html_file);
+    }
+
+    pclose(pipe);
+    fclose(html_file);
+
+    char command[512];
+    snprintf(command, sizeof(command), "xdg-open %s", temp_html_file);
+    if (system(command) != 0) {
+        GtkWidget *dialog = gtk_message_dialog_new(NULL,
+            GTK_DIALOG_MODAL,
+            GTK_MESSAGE_INFO,
+            GTK_BUTTONS_OK,
+            "Could not automatically open browser. HTML saved at:\n%s",
+            temp_html_file);
+        gtk_dialog_run(GTK_DIALOG(dialog));
+        gtk_widget_destroy(dialog);
+    }
+}
+
 void show_about(GtkWidget *widget, gpointer data) {
     (void)widget;  // Suppress unused parameter warning
     (void)data;    // Suppress unused parameter warning
@@ -383,19 +401,19 @@ void setup_file(void) {
 
     struct passwd *info = getpwuid(uid);
     if (info == NULL) {
-        handle_error("Failed to get user information");
+        handle_error_gtk("Failed to get user information");
         exit(1);
     }
 
     homedir = info->pw_dir;
     if (homedir == NULL) {
-        handle_error("Home directory is NULL");
+        handle_error_gtk("Home directory is NULL");
         exit(1);
     }
 
     fileloc = malloc(strlen(homedir) + 6);
     if (fileloc == NULL) {
-        handle_error("Memory allocation failed");
+        handle_error_gtk("Memory allocation failed");
         exit(1);
     }
     sprintf(fileloc, "%s/.pif", homedir);
@@ -404,30 +422,30 @@ void setup_file(void) {
     configloc = malloc(strlen(homedir) + 12);
     if (configloc == NULL) {
         free(fileloc);
-        handle_error("Memory allocation failed");
+        handle_error_gtk("Memory allocation failed");
         exit(1);
     }
     sprintf(configloc, "%s/.pif-config", homedir);
 
     // Load rotation config
-    load_rotation_config();
+    load_rotation_config(configloc);
 
     FILE *file = fopen(fileloc, "r");
     if (file == NULL) {
         if (errno != ENOENT) {
-            handle_error("Failed to open file");
+            handle_error_gtk("Failed to open file");
             exit(1);
         }
 
         file = fopen(fileloc, "w");
         if (file == NULL) {
-            handle_error("Failed to create file");
+            handle_error_gtk("Failed to create file");
             exit(1);
         }
         fclose(file);
 
         if (chmod(fileloc, 0600) == -1) {
-            handle_error("Failed to set file permissions");
+            handle_error_gtk("Failed to set file permissions");
             exit(1);
         }
     } else {
@@ -479,6 +497,10 @@ static void activate(GtkApplication *app, gpointer user_data) {
     GtkWidget *settings_item = gtk_menu_item_new_with_label("Settings");
     g_signal_connect(settings_item, "activate", G_CALLBACK(show_settings), NULL);
     gtk_menu_shell_append(GTK_MENU_SHELL(file_menu), settings_item);
+
+    GtkWidget *html_item = gtk_menu_item_new_with_label("View as HTML");
+    g_signal_connect(html_item, "activate", G_CALLBACK(view_as_html), NULL);
+    gtk_menu_shell_append(GTK_MENU_SHELL(file_menu), html_item);
 
     gtk_menu_shell_append(GTK_MENU_SHELL(file_menu), gtk_separator_menu_item_new());
 
@@ -568,4 +590,4 @@ int main(int argc, char **argv) {
     free(fileloc);
     free(configloc);
     return status;
-} 
+}

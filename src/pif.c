@@ -254,7 +254,58 @@ int is_song_due(const char *song_name, const char *freq) {
     return days_since >= days;
 }
 
-int main(void) {
+void print_html_output(char **rotation_songs, int num_rotation_songs, const char *fileloc) {
+    printf("Content-Type: text/html\n\n");
+    printf("<!DOCTYPE html>\n");
+    printf("<html lang=\"en\">\n");
+    printf("<head>\n");
+    printf("    <meta charset=\"UTF-8\">\n");
+    printf("    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n");
+    printf("    <title>Practice Schedule</title>\n");
+    printf("</head>\n");
+    printf("<body>\n");
+    printf("    <h1>Today's Practice Schedule</h1>\n");
+
+    if (num_rotation_songs > 0) {
+        printf("    <h2>Rotation Songs</h2>\n");
+        printf("    <ul>\n");
+        for (int i = 0; i < num_rotation_songs; i++) {
+            printf("        <li>%s</li>\n", rotation_songs[i]);
+        }
+        printf("    </ul>\n");
+    }
+
+    FILE *file = fopen(fileloc, "r");
+    if (file != NULL) {
+        char line[256];
+        int has_frequency_songs = 0;
+        while (fgets(line, sizeof(line), file)) {
+            line[strcspn(line, "\n")] = 0;
+            char *freq = strrchr(line, ' ');
+            if (freq != NULL) {
+                *freq = '\0';
+                freq++;
+                if (is_song_due(line, freq)) {
+                    if (!has_frequency_songs) {
+                        printf("    <h2>Frequency-Based Songs</h2>\n");
+                        printf("    <ul>\n");
+                        has_frequency_songs = 1;
+                    }
+                    printf("        <li>%s (every %s days)</li>\n", line, freq);
+                }
+            }
+        }
+        if (has_frequency_songs) {
+            printf("    </ul>\n");
+        }
+        fclose(file);
+    }
+
+    printf("</body>\n");
+    printf("</html>\n");
+}
+
+int main(int argc, char *argv[]) {
     char* homedir;
     uid_t uid = getuid();
 
@@ -280,51 +331,53 @@ int main(void) {
         handle_error("Path too long");
     }
 
-    // Load rotation config
     load_rotation_config(configloc);
 
-    // Get today's rotation songs
     char **rotation_songs = NULL;
     int num_rotation_songs = 0;
     get_todays_songs(fileloc, &rotation_songs, &num_rotation_songs);
 
-    // Save updated rotation config
     save_rotation_config(configloc);
 
-    // Print today's rotation songs
-    if (num_rotation_songs > 0) {
-        printf("Today's rotation songs to practice:\n");
-        for (int i = 0; i < num_rotation_songs; i++) {
-            printf("%d. %s\n", i + 1, rotation_songs[i]);
-            free(rotation_songs[i]);
-        }
-        free(rotation_songs);
-    }
-
-    // Check frequency-based songs
-    FILE *file = fopen(fileloc, "r");
-    if (file == NULL) {
-        handle_error("Failed to open songs file");
-    }
-
-    char line[256];
-    int has_frequency_songs = 0;
-    while (fgets(line, sizeof(line), file)) {
-        line[strcspn(line, "\n")] = 0;  // Remove newline
-        char *freq = strrchr(line, ' ');
-        if (freq != NULL) {
-            *freq = '\0';  // Split song name and frequency
-            freq++;  // Move past the space
-            if (is_song_due(line, freq)) {
-                if (!has_frequency_songs) {
-                    printf("\nSongs due for practice based on frequency:\n");
-                    has_frequency_songs = 1;
-                }
-                printf("- %s (every %s days)\n", line, freq);
+    if (argc > 1 && strcmp(argv[1], "html") == 0) {
+        print_html_output(rotation_songs, num_rotation_songs, fileloc);
+    } else {
+        if (num_rotation_songs > 0) {
+            printf("Today's rotation songs to practice:\n");
+            for (int i = 0; i < num_rotation_songs; i++) {
+                printf("%d. %s\n", i + 1, rotation_songs[i]);
             }
         }
+
+        FILE *file = fopen(fileloc, "r");
+        if (file == NULL) {
+            handle_error("Failed to open songs file");
+        }
+
+        char line[256];
+        int has_frequency_songs = 0;
+        while (fgets(line, sizeof(line), file)) {
+            line[strcspn(line, "\n")] = 0;
+            char *freq = strrchr(line, ' ');
+            if (freq != NULL) {
+                *freq = '\0';
+                freq++;
+                if (is_song_due(line, freq)) {
+                    if (!has_frequency_songs) {
+                        printf("\nSongs due for practice based on frequency:\n");
+                        has_frequency_songs = 1;
+                    }
+                    printf("- %s (every %s days)\n", line, freq);
+                } 
+            }
+        }
+        fclose(file);
     }
-    fclose(file);
+
+    for (int i = 0; i < num_rotation_songs; i++) {
+        free(rotation_songs[i]);
+    }
+    free(rotation_songs);
 
     return 0;
 }

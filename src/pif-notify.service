@@ -15,13 +15,11 @@
 
 [Unit]
 Description=PIF Song Rotation Service
-After=network.target
+After=graphical-session.target
 
 [Service]
 Type=oneshot
-ExecStart=/bin/sh -c "MESSAGE=$(/usr/local/bin/pif); /usr/bin/notify-send 'PIF Rotation' \"$MESSAGE\""
-Environment=DISPLAY=:0
-Environment=XAUTHORITY=/home/%i/.Xauthority
+ExecStart=/bin/sh -c "MESSAGE=$(/usr/local/bin/pif); /usr/bin/notify-send 'PIF Rotation' "$MESSAGE""
 
 [Install]
-WantedBy=default.target 
+WantedBy=default.target
